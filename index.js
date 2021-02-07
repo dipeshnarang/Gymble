@@ -9,6 +9,7 @@ const slot_bookRouter2=require('./Routers/slot_bookRouter2')
 // const slot_bookRouter3=require('./Routers/slot_bookRouter3')
 const webRouter=require('./Routers/webRouter')
 require('./databaseConnection/mongoose')
+require('./scheduled-jobs/scheduledJobs')
 
 const app=express()
 
