@@ -42,6 +42,9 @@ router.post('/bookSlot2',async(req,res)=>{
                 check_in_time:null
             })
             await booking.save()
+            slot.slots[0].remaining_slots=slot.slots[0].remaining_slots-1
+            console.log(slot)
+            await slot.save()
             res.send(booking)
         }else{
             res.status(401).send("Slot Already Full")

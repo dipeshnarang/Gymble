@@ -68,4 +68,18 @@ router.get('/getSlotsByDate2',checkSubscription,async(req,res)=>{
     }
 })
 
+router.patch('/addRemaining',async(req,res)=>{
+    const id=req.body.id
+    try{
+        const gymSlot=await Slot2.findById(id)
+        gymSlot.slots.forEach((slot)=>{
+            slot.remaining_slots=slot.available_slots
+        })
+        await gymSlot.save()
+        res.send(gymSlot)
+    }catch(e){
+        res.send(e)
+    }
+})
+
 module.exports=router
