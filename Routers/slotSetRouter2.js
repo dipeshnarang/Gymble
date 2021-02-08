@@ -57,6 +57,7 @@ router.get('/getSlotsByDate2',checkSubscription,async(req,res)=>{
                 slots.slots=filtered_slots
                 
             }
+            console.log(slots)
             res.send({'is_active':is_active,'booked':false,'days_left':req.days_left,slots})
         }else{
             res.send({'is_active':is_active,'booked':true,'days_left':req.days_left,already_booked})
