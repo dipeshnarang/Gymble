@@ -64,8 +64,8 @@ router.post('/cancelSlot2',async(req,res)=>{
     const day=date.getDay()
     const gym_id=req.body.gym_id
     try{
-        const slots=await Slot.findOneAndUpdate({'gym_id':canceledSlot.gym_id,'day':day,'slots':{$elemMatch:{'_id':canceledSlot.slot_id}}},{$inc:{'slots.$.remaining_slots':1}},{new:true})
         const canceledSlot=await bookSlots.findByIdAndDelete(object_id)
+        const slots=await Slot.findOneAndUpdate({'gym_id':canceledSlot.gym_id,'day':day,'slots':{$elemMatch:{'_id':canceledSlot.slot_id}}},{$inc:{'slots.$.remaining_slots':1}},{new:true})
         res.send(slots)
     }catch(e){
         console.log(e)
