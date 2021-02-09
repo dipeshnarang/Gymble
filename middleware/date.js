@@ -50,6 +50,7 @@ const date_function=function(requestedDate){
     }
     date.setHours(0,0,0,0)
     date.setTime(date.getTime()+5*60*60*1000+30*60*1000)
+    console.log('------------------------------------------END OF DATE.JS FUNCTION-------------------------------')
     return date
 
 }

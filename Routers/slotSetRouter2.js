@@ -1,5 +1,5 @@
 const express=require('express')
-const Slot2=require('./../models/slotsSchema2')
+const Slot=require('./../models/slotsSchema2')
 const checkSubscription = require('../middleware/checkSubscription')
 const bookSlots=require('./../models/bookedSlotSchema2')
 const filterTimings=require('../middleware/time')
@@ -9,12 +9,12 @@ const router=new express.Router()
 
 
 router.post('/createSlot2',async(req,res)=>{
-    const slot2=new Slot2(req.body)
+    const slot2=new Slot(req.body)
     const gym_id=req.body.gym_id
     const day=req.body.day
     
     try{
-        const already_created=await Slot2.findOne({gym_id:gym_id, day:day})
+        const already_created=await Slot.findOne({gym_id:gym_id, day:day})
         if(already_created===null){
 	    console.log("---------------------------------CREATE SLOT 2---------------------- NEW CREATED---------------------")
             await slot2.save()
@@ -47,7 +47,7 @@ router.get('/getSlotsByDate2',checkSubscription,async(req,res)=>{
     try{
         const already_booked=await bookSlots.findOne({user_id:user_id,gym_id:gym_id,date:date,booking_status:true})
         if(already_booked===null){
-            const slots=await Slot2.findOne({'gym_id':gym_id,'day':day})
+            const slots=await Slot.findOne({'gym_id':gym_id,'day':day})
 	        const todays_date=new Date().getDate()
             if(todays_date===date.getDate()){
                 const filtered_slots=slots.slots.filter(function(slot){
@@ -72,7 +72,7 @@ router.get('/getSlotsByDate2',checkSubscription,async(req,res)=>{
 router.patch('/addRemaining',async(req,res)=>{
     const id=req.body.id
     try{
-        const gymSlot=await Slot2.findById(id)
+        const gymSlot=await Slot.findById(id)
         gymSlot.slots.forEach((slot)=>{
             slot.remaining_slots=slot.available_slots
         })
@@ -80,6 +80,26 @@ router.patch('/addRemaining',async(req,res)=>{
         res.send(gymSlot)
     }catch(e){
         res.send(e)
+    }
+})
+
+router.get('/getSlotsByWeek',checkSubscription,async(req,res)=>{
+
+    const subscription=req.gym
+    const cur_date=req.date
+
+    try{
+        const last_date=cur_date.getDate()+6
+        let slots=null
+        if(last_date<subscription.end_date){
+            slots=await Slot.find({'gym_id':subscription.gym_id})
+        }
+        console.log(slots)
+        res.send(slots)
+
+
+    }catch(e){
+
     }
 })
 
