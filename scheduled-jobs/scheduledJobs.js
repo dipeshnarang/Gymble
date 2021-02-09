@@ -4,7 +4,7 @@ const Slot=require('./../models/slotsSchema2')
 const dateIST=function(){
     const curDate=new Date()
     curDate.setTime(curDate.getTime()+330*60*1000)
-    const day=curDate.getDay()
+    let day=curDate.getDay()
     if(day==0){
         day=6
     }else{
@@ -18,17 +18,18 @@ const scheduleJob=async function(){
 
         const day=dateIST()
         const gyms=await Slot.find({day:day})
-
         if(gyms.length>0){
-            gyms.forEach((gym)=>{
+            gyms.forEach(async(gym)=>{
                 if(gym.slots.length>0){
                     gym.slots.forEach((slot)=>{
                         slot.remaining_slots=slot.available_slots
-                        console.log(slot)
                     })
                 }
+                console.log(gym)
+                await gym.save()
             })
         }
+        
     })
 }
 
