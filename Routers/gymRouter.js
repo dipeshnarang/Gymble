@@ -14,16 +14,12 @@ router.post('/registerGym',async(req,res)=>{
     const gym=new Gym({...req.body,
 			qr_code_url:null})
     try{
-        const gym_saved=await gym.save()
-	    const gym_id=JSON.stringify(gym_saved._id)
-	    console.log(gym_id)
-        const hash= await bcrypt.hash(gym_id,8)
-        console.log(hash)
-        const qr_code_url=await qrcode.toDataURL(hash.toString())
-        gym_saved.qr_code_url=qr_code_url
-        await gym_saved.save()
-	    console.log(gym_saved)
-        res.send(gym_saved)
+        const qr=gym.gym_name.trim().toLowerCase().replace(/\s+/g, '')
+        gym.unique_qr_str=qr
+        const qr_code_url=await qrcode.toDataURL(qr)
+        gym.qr_code_url=qr_code_url
+        await gym.save()
+        res.send(gym)
     }catch(e){
         res.send(e)
     }
@@ -70,17 +66,12 @@ router.get('/getGymSubcriptionDetails',async(req,res)=>{
 
 router.patch('/addQrCodeGym',async(req,res)=>{
     const gym_id=req.query.gym_id
-    const hash=await bcrypt.hash(gym_id,8)
-    console.log(hash)
-    const qr_code_url=await qrcode.toDataURL(hash.toString())
-    // console.log(qr_code_url)
     try{
-        //const gym=await Gym.findByIdAndUpdate(gym_id,{$set:{'qr_code_url':qr_code_url}})
-	const gym=await Gym.findById(gym_id)
-        console.log(gym)
-        gym.qr_code_url=qr_code_url
+	    const gym=await Gym.findById(gym_id)
+        const qr_code_url=gym.gym_name.trim().toLowerCase().replace(/\s+/g, '')
+        gym.qr_code_url=await qrcode.toDataURL(qr_code_url)
         await gym.save()
-        res.send(qrcode.toString(qr_code_url))
+        res.send(gym.qr_code_url)
         
     }catch(e){
         res.send(e)
@@ -91,13 +82,13 @@ router.patch('/addQrCodeGym',async(req,res)=>{
 
 router.get('/getQRcode',async(req,res)=>{
     const gym_id=req.query.gym_id
-    const url=await Gym.findOne({_id:gym_id},{qr_code_url:1,_id:1})
-    let qr=url.qr_code_url.substring(22)
-    res.status(401).send(qr)
-
-    //const url=await Gym.findOne({_id:gym_id},{qr_code_url:1,_id:0})
-    //res.status(201).send(url.qr_code_url)
-    //res.send(url.qr_code_url)
+    try{
+        const url=await Gym.findOne({_id:gym_id},{qr_code_url:1,_id:1})
+        let qr=url.qr_code_url.substring(22)
+        res.status(200).send(qr)
+    }catch(e){
+        res.status(400).send(e)
+    }
 })
 
 

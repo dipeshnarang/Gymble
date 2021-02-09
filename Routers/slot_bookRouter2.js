@@ -24,6 +24,8 @@ router.post('/bookSlot2',async(req,res)=>{
         const count=await bookSlots.countDocuments({'gym_id':gym_id,'date':date,'slot_id':slot_id})
         console.log("Document Count: "+count)
         const slot=await Slot.findOne({'gym_id':gym_id,'day':day,'slots':{$elemMatch:{'_id':slot_id}}},{'slots':{$elemMatch:{'_id':slot_id}}})
+        // const slots=await Slot.findOneAndUpdate({'gym_id':canceledSlot.gym_id,'day':day,'slots':{$elemMatch:{'_id':canceledSlot.slot_id}}},{$inc:{'slots.$.remaining_slots':1}},{new:true})
+        
         console.log("Slot from slot_bookRouter2 ----------------------------------------------------")
         console.log(slot)
         if(count<slot.slots[0].available_slots){
@@ -62,8 +64,8 @@ router.post('/cancelSlot2',async(req,res)=>{
     const day=date.getDay()
     const gym_id=req.body.gym_id
     try{
-        const canceledSlot=await bookSlots.findByIdAndDelete(object_id)
         const slots=await Slot.findOneAndUpdate({'gym_id':canceledSlot.gym_id,'day':day,'slots':{$elemMatch:{'_id':canceledSlot.slot_id}}},{$inc:{'slots.$.remaining_slots':1}},{new:true})
+        const canceledSlot=await bookSlots.findByIdAndDelete(object_id)
         res.send(slots)
     }catch(e){
         console.log(e)
@@ -81,16 +83,14 @@ router.post('/checkIn2',async(req,res)=>{
     console.log(date)
     try{
         const booked_slot=await bookSlots.findOne({_id:object_id})
-        const gymId=JSON.stringify(booked_slot.gym_id)
-        const gym_id=gymId.substr(1,gymId.length-2)
-        console.log(gym_id)
-        const isMatch=await bcrypt.compare(gym_id,qr_code)
+        const gymName=booked_slot.gym_name.trim().toLowerCase().replace(/\s+/g, '')
+        const qrMatch=qr_code===gymName
         const time_compare=compareTime(booked_slot.time)
         const dateCompare=date>booked_slot.date
-        console.log("brcypt Matched: "+isMatch)
+        console.log("is Matched: "+qrMatch)
         console.log("Date compared: "+dateCompare)
         console.log("Time Compare: "+time_compare)
-        if(isMatch===true && time_compare===true  && dateCompare===true){
+        if(qrMatch===true && time_compare===true  && dateCompare===true){
             const slot=await bookSlots.findOneAndUpdate({_id:object_id},{$set:{check_in_status:true,check_in_time:cur_time}},{new:true})
             res.send(slot)
         }else{
