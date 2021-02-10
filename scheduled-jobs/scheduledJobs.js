@@ -1,7 +1,7 @@
 const schedule=require('node-schedule')
 const Slot=require('./../models/slotsSchema2')
 
-const dateIST=function(){
+const getPreviousDay=function(){
     const curDate=new Date()
     curDate.setTime(curDate.getTime()+330*60*1000)
     let day=curDate.getDay()
@@ -13,10 +13,10 @@ const dateIST=function(){
     return day
 }
 
-const scheduleJob=async function(){
+const scheduleJobSetRemainingSlots=async function(){
     const job=schedule.scheduleJob({hour:00,minute:00},async function(){
 
-        const day=dateIST()
+        const day=getPreviousDay()
         const gyms=await Slot.find({day:day})
         if(gyms.length>0){
             gyms.forEach(async(gym)=>{
@@ -33,5 +33,4 @@ const scheduleJob=async function(){
     })
 }
 
-
-scheduleJob()
+scheduleJobSetRemainingSlots()
