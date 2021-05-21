@@ -1,14 +1,8 @@
 const express=require('express')
 const Gym=require('../models/gymSchema')
 const qrcode=require('qrcode')
-const bcrypt=require('bcrypt')
-
 
 const router=new express.Router()
-
-router.get('/slot',async(req,res)=>{
-    res.send("From slots router")
-})
 
 router.post('/registerGym',async(req,res)=>{
     const gym=new Gym({...req.body,
@@ -62,22 +56,6 @@ router.get('/getGymSubcriptionDetails',async(req,res)=>{
         console.log(e)
         res.status(400).send(e)
     }
-})
-
-router.patch('/addQrCodeGym',async(req,res)=>{
-    const gym_id=req.query.gym_id
-    try{
-	    const gym=await Gym.findById(gym_id)
-        const qr_code_url=gym.gym_name.trim().toLowerCase().replace(/\s+/g, '')
-        gym.qr_code_url=await qrcode.toDataURL(qr_code_url)
-        await gym.save()
-        res.send(gym.qr_code_url)
-        
-    }catch(e){
-        res.send(e)
-
-    }
-
 })
 
 router.get('/getQRcode',async(req,res)=>{

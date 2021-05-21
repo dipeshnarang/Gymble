@@ -6,18 +6,11 @@ const checkSubscription=async(req,res,next)=>{
     console.log("Runnning Check Subscription MiddleWare Function -----------------------------------------------------------------------")
     const user_id=req.query.user_id
     const cur_date=new Date()
-    // cur_date.setTime(cur_date.getTime()+330*60*1000)
     const query_date=date_function(req.query.date)
-
-    // const query_date=new Date(req.query.date)
-    // console.log('user_id : '+user_id)
-    // console.log("query date: "+query_date.toUTCString())
 
     try{
         const subscription_details=await Subscription.find({user_id:user_id, is_active:true})
-        let active_subscription=null
-        // console.log(subscription_details)
-        
+        let active_subscription=null        
         
         subscription_details.forEach(async function (each_subscription){
             try{
@@ -52,6 +45,7 @@ const checkSubscription=async(req,res,next)=>{
 
 
         next()
+    
     }catch(e){
         res.status(401).send({'is_active':false,"booked":false,"slots":null})
     }
